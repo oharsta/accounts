@@ -1,14 +1,40 @@
 package accounts;
 
+import io.restassured.RestAssured;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.hamcrest.Matchers.hasItems;
+import static org.springframework.test.context.jdbc.SqlConfig.ErrorMode.FAIL_ON_ERROR;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
-public class AccountsControllerTest extends AbstractIntegrationTest {
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional
+@Sql(scripts = {"classpath:sql/clear.sql", "classpath:sql/seed.sql"},
+    config = @SqlConfig(errorMode = FAIL_ON_ERROR, transactionMode = ISOLATED))
+public class AccountsControllerTest {
+
+    @LocalServerPort
+    protected int port;
+
+    @Before
+    public void before() throws Exception {
+        RestAssured.port = port;
+    }
 
     @Test
     public void accounts() throws Exception {
