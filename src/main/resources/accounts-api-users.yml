@@ -1,0 +1,12 @@
+# Valid scopes are mr.api.Scope.values(); =>  ["READ", "WRITE"]
+apiUsers:
+  - {
+      name: "user",
+      password: "secret",
+      scopes: [READ]
+    }
+  - {
+      name: "admin",
+      password: "secret",
+      scopes: [READ, WRITE]
+    }
