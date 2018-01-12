@@ -9,7 +9,8 @@ security:
   api_users_config_path: classpath:/accounts-api-users.yml
 
 spring:
-  data:
+  jpa:
+    open-in-view: false
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mysql://localhost/accounts?autoReconnect=true&useSSL=false
