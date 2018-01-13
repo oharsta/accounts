@@ -6,11 +6,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 
 public class APIAuthenticationManager implements AuthenticationManager {
 
@@ -24,18 +22,17 @@ public class APIAuthenticationManager implements AuthenticationManager {
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String name = String.class.cast(authentication.getPrincipal());
-        Optional<APIUser> apiUserOptional = apiUserConfiguration.getApiUsers().stream()
-            .filter(apiUser -> apiUser.getName().equals(name)).findFirst();
-        return apiUserOptional
-            .filter(apiUser -> passwordEncoder.matches(String.class.cast(authentication.getCredentials()), apiUser
-                .getPassword()))
+    public Authentication authenticate(Authentication auth) throws AuthenticationException {
+        String name = String.class.cast(auth.getPrincipal());
+        return apiUserConfiguration.getApiUsers().stream()
+            .filter(apiUser -> apiUser.getName().equals(name))
+            .findFirst()
+            .filter(apiUser -> passwordEncoder.matches((String) auth.getCredentials(), apiUser.getPassword()))
             .map(apiUser -> new UsernamePasswordAuthenticationToken(
                 apiUser,
-                authentication.getCredentials(),
+                auth.getCredentials(),
                 apiUser.getScopes().stream().map(scope -> new SimpleGrantedAuthority("ROLE_".concat(scope.name())))
-                    .collect(Collectors.toList())))
+                    .collect(toList())))
             .orElseThrow(() -> new AuthenticationServiceException("Nope"));
     }
 }
