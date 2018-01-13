@@ -2,7 +2,6 @@ package accounts.api;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -22,10 +21,6 @@ public class APIUserHandlerMethodArgumentResolver implements
                                    NativeWebRequest webRequest,
                                    WebDataBinderFactory binderFactory) throws Exception {
         Principal principal = webRequest.getUserPrincipal();
-        if (principal instanceof PreAuthenticatedAuthenticationToken) {
-            return APIUser.class.cast(PreAuthenticatedAuthenticationToken.class.cast(principal).getPrincipal());
-        } else {
-            return APIUser.class.cast(UsernamePasswordAuthenticationToken.class.cast(principal).getPrincipal());
-        }
+        return APIUser.class.cast(UsernamePasswordAuthenticationToken.class.cast(principal).getPrincipal());
     }
 }

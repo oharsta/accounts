@@ -5,6 +5,7 @@ import accounts.api.APIUserConfiguration;
 import accounts.api.APIUserHandlerMethodArgumentResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,7 +14,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -31,12 +33,18 @@ public class WebSecurityConfigurer {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         APIUserConfiguration apiUserConfiguration = new Yaml()
-            .loadAs(resourceLoader.getResource(configApiUsersFileLocation).getInputStream(), APIUserConfiguration
-                .class);
-        APIAuthenticationManager authenticationManager = new APIAuthenticationManager(apiUserConfiguration);
+            .loadAs(resourceLoader.getResource(configApiUsersFileLocation).getInputStream(),
+                APIUserConfiguration.class);
+        APIAuthenticationManager authenticationManager = new APIAuthenticationManager(apiUserConfiguration,
+            passwordEncoder());
         auth.parentAuthenticationManager(authenticationManager);
     }
 
@@ -46,12 +54,11 @@ public class WebSecurityConfigurer {
 
         @Override
         public void configure(WebSecurity web) throws Exception {
-            web.ignoring().antMatchers("/health", "/info");
+            web.ignoring().antMatchers("/actuator/health", "/actuator/info", "/encodePassword/**");
         }
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
-
             http
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER)

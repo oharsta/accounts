@@ -1,4 +1,4 @@
-package accounts;
+package accounts.web;
 
 import io.restassured.RestAssured;
 import org.junit.Before;
@@ -15,6 +15,7 @@ import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.context.jdbc.SqlConfig.ErrorMode.FAIL_ON_ERROR;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
@@ -52,5 +53,14 @@ public class AccountsControllerTest {
             .get("accounts/")
             .then()
             .statusCode(SC_FORBIDDEN);
+    }
+
+    @Test
+    public void encryptPassword() {
+        given()
+            .when()
+            .get("encodePassword/secret")
+            .then()
+            .body(startsWith("{bcrypt}$2a$10$"));
     }
 }

@@ -17,9 +17,7 @@ import java.time.Instant;
 
 @Entity(name = "accounts")
 @Getter
-@Setter
 @NoArgsConstructor
-@ToString
 public class Account {
 
     @Id
@@ -44,11 +42,5 @@ public class Account {
 
     @Column
     private Instant created;
-
-    public Account(String identifier, String organisation, AccountType accountType) {
-        this.identifier = identifier;
-        this.organisation = organisation;
-        this.accountType = accountType;
-    }
 
 }

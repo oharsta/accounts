@@ -16,22 +16,8 @@ spring:
     url: jdbc:mysql://localhost/accounts?autoReconnect=true&useSSL=false
     username: root
     password:
-    tomcat:
-      test-on-borrow: true
-      validation-query: SELECT 1
-      remove-abandoned: true
-      test-while-idle: true
   main:
     banner-mode: "off"
-
-# We disable all endpoints except health for the load-balancer and info for git information.
-endpoints:
-  enabled: false
-  health:
-    enabled: true
-    sensitive: false
-  info:
-    enabled: true
 
 # used by the git plugin
 info:
